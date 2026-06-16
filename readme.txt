@@ -4,7 +4,7 @@ Tags: formidable, forms, form builder, list view, admin
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.13
+Stable tag: 1.0.14
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,7 +27,7 @@ This plugin is not affiliated with Strategy11 or Formidable Forms.
 * Click a row to select the field on the canvas
 * Inline label and visibility editing
 * Drag to reorder fields within a page or section (synced to the canvas)
-* Row menu (⋮): Delete, Duplicate, Field Settings
+* Row menu (⋮): Delete, Duplicate, Field Settings, **Bulk delete** (pages and sections)
 
 = Requirements =
 
@@ -69,6 +69,10 @@ Page rows are for navigation. Reorder fields within each page or section; page b
 
 == Changelog ==
 
+= 1.0.14 =
+* Fix List View drag reorder (canvas sync without list snapping back)
+* Bulk delete for pages and sections (all nested fields)
+
 = 1.0.13 =
 * WordPress.org submission package: readme.txt, GPLv2 license, plugin assets
 * Version bump for directory release
@@ -77,6 +81,9 @@ Page rows are for navigation. Reorder fields within each page or section; page b
 * Initial public release: List View tab, search, collapse, drag reorder, row menus, MIT/GPL distribution on GitHub
 
 == Upgrade Notice ==
+
+= 1.0.14 =
+Drag reorder fix and bulk delete for pages/sections. Requires Formidable Forms 6.31+.
 
 = 1.0.13 =
 WordPress.org release preparation. Requires Formidable Forms 6.31+.

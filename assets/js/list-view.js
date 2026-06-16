@@ -197,9 +197,6 @@
 		treeRoot.appendChild( list );
 
 		treeRoot.querySelectorAll( '.flv-tree-children' ).forEach( ( childList ) => {
-			if ( childList.classList.contains( 'flv-tree-root' ) ) {
-				return;
-			}
 			initSortable( childList );
 		} );
 	}
@@ -444,7 +441,30 @@
 		triggerFieldAction( fieldId, action );
 	}
 
+	function appendBulkDeleteMenuItem( node, menu ) {
+		if ( node.type !== 'page' && ! ( node.isContainer && node.type === 'divider' ) ) {
+			return;
+		}
+
+		const ids = collectNestedFieldIds( node );
+		if ( ! ids.length ) {
+			return;
+		}
+
+		const item = {
+			actionClass: 'flv_bulk_delete',
+			icon: 'frm_delete_icon',
+			label: config.i18n.bulkDelete,
+		};
+
+		menu.appendChild(
+			createFormidableMenuItem( item, () => bulkDeleteFields( ids ) )
+		);
+	}
+
 	function appendStandardFieldMenu( node, menu ) {
+		appendBulkDeleteMenuItem( node, menu );
+
 		const standardItems = [
 			{
 				actionClass: 'frm_delete_field',
@@ -753,20 +773,83 @@
 		} ).always( scheduleRefresh );
 	}
 
-	function deleteField( fieldId ) {
-		if ( ! window.confirm( config.i18n.confirmDelete ) ) {
+	function deleteField( fieldId, skipConfirm ) {
+		if ( ! skipConfirm && ! window.confirm( config.i18n.confirmDelete ) ) {
 			return;
 		}
 		if ( window.frmAdminBuild && typeof window.frmAdminBuild.deleteField === 'function' ) {
 			window.frmAdminBuild.deleteField( fieldId );
-			scheduleRefresh();
 			return;
 		}
 		$.post( config.ajaxUrl, {
 			action: 'frm_delete_field',
 			field_id: fieldId,
 			nonce: typeof frmGlobal !== 'undefined' ? frmGlobal.nonce : config.nonce,
-		} ).always( scheduleRefresh );
+		} );
+	}
+
+	function collectNestedFieldIds( node ) {
+		const ids = [];
+
+		function walk( n ) {
+			if ( n.children && n.children.length ) {
+				n.children.forEach( walk );
+			}
+			if ( ! n.isSynthetic && n.fieldId ) {
+				ids.push( n.fieldId );
+			}
+		}
+
+		if ( node.type === 'page' ) {
+			if ( node.children && node.children.length ) {
+				node.children.forEach( walk );
+			}
+		} else {
+			walk( node );
+		}
+
+		return ids;
+	}
+
+	function bulkDeleteFields( fieldIds ) {
+		const uniqueIds = fieldIds.filter( ( id, index, list ) => list.indexOf( id ) === index );
+		if ( ! uniqueIds.length ) {
+			return;
+		}
+
+		const message = config.i18n.confirmBulkDelete.replace( '%d', String( uniqueIds.length ) );
+		if ( ! window.confirm( message ) ) {
+			return;
+		}
+
+		selectedId = null;
+		let index = 0;
+
+		function deleteNext() {
+			if ( index >= uniqueIds.length ) {
+				scheduleRefresh();
+				return;
+			}
+
+			const fieldId = uniqueIds[ index ];
+			index += 1;
+
+			if ( window.frmAdminBuild && typeof window.frmAdminBuild.deleteField === 'function' ) {
+				window.frmAdminBuild.deleteField( fieldId );
+				setTimeout( deleteNext, 100 );
+				return;
+			}
+
+			$.post( config.ajaxUrl, {
+				action: 'frm_delete_field',
+				field_id: fieldId,
+				nonce: typeof frmGlobal !== 'undefined' ? frmGlobal.nonce : config.nonce,
+			} ).always( () => {
+				setTimeout( deleteNext, 100 );
+			} );
+		}
+
+		deleteNext();
 	}
 
 	function syncLabel( fieldId, value ) {
@@ -846,7 +929,8 @@
 			tolerance: 'pointer',
 			placeholder: 'flv-sort-placeholder',
 			forcePlaceholderSize: true,
-			delay: 120,
+			delay: 80,
+			distance: 5,
 			update: function () {
 				applyListOrderToCanvas( list );
 			},
@@ -857,6 +941,63 @@
 		return Array.from( list.querySelectorAll( ':scope > .flv-node:not([data-field-type="break"])' ) )
 			.map( ( li ) => li.getAttribute( 'data-field-id' ) )
 			.filter( ( id ) => id && ! id.startsWith( 'page-' ) );
+	}
+
+	function refreshCanvasSortable( canvasList ) {
+		if ( ! canvasList ) {
+			return;
+		}
+		const $canvasList = $( canvasList );
+		if ( $canvasList.hasClass( 'ui-sortable' ) ) {
+			$canvasList.sortable( 'refresh' );
+		}
+	}
+
+	function reorderLocalTree( list, orderedIds ) {
+		const pageNumber = list.getAttribute( 'data-page-number' );
+		const parentId = list.getAttribute( 'data-parent-id' );
+		let children = null;
+
+		if ( pageNumber ) {
+			const page = treeData.find( ( n ) => n.type === 'page' && String( n.pageNumber ) === pageNumber );
+			children = page ? page.children : null;
+		} else if ( parentId === '0' ) {
+			children = treeData;
+		} else if ( parentId ) {
+			const parent = findNode( treeData, parentId );
+			children = parent ? parent.children : null;
+		}
+
+		if ( ! children || ! children.length ) {
+			return;
+		}
+
+		const map = new Map();
+		children.forEach( ( n ) => map.set( nodeKey( n.id ), n ) );
+		const next = [];
+
+		orderedIds.forEach( ( id ) => {
+			const node = map.get( id );
+			if ( node ) {
+				next.push( node );
+				map.delete( id );
+			}
+		} );
+		map.forEach( ( node ) => next.push( node ) );
+
+		if ( pageNumber ) {
+			const page = treeData.find( ( n ) => n.type === 'page' && String( n.pageNumber ) === pageNumber );
+			if ( page ) {
+				page.children = next;
+			}
+		} else if ( parentId === '0' ) {
+			treeData = next;
+		} else if ( parentId ) {
+			const parent = findNode( treeData, parentId );
+			if ( parent ) {
+				parent.children = next;
+			}
+		}
 	}
 
 	function updateFieldOrderInputs( canvasList ) {
@@ -916,15 +1057,16 @@
 		} );
 
 		updateFieldOrderInputs( range.canvasList );
+		refreshCanvasSortable( range.canvasList );
 	}
 
 	function applyListOrderToCanvas( list ) {
-		const pageNumber = list.getAttribute( 'data-page-number' );
 		const orderedIds = getOrderedFieldIds( list );
+		const pageNumber = list.getAttribute( 'data-page-number' );
 
 		if ( pageNumber ) {
 			reorderCanvasPageFields( parseInt( pageNumber, 10 ), orderedIds );
-			scheduleRefresh();
+			reorderLocalTree( list, orderedIds );
 			return;
 		}
 
@@ -933,7 +1075,8 @@
 			return;
 		}
 
-		const canvasList = getCanvasSortableList( parseInt( parentId, 10 ) || 0 );
+		const canvasParentId = parentId === '0' ? 0 : parseInt( parentId, 10 );
+		const canvasList = getCanvasSortableList( canvasParentId );
 		if ( ! canvasList ) {
 			return;
 		}
@@ -947,7 +1090,8 @@
 		} );
 
 		updateFieldOrderInputs( canvasList );
-		scheduleRefresh();
+		refreshCanvasSortable( canvasList );
+		reorderLocalTree( list, orderedIds );
 	}
 
 	function getCanvasSortableList( parentId ) {
@@ -958,7 +1102,11 @@
 		if ( ! parentLi ) {
 			return null;
 		}
-		return parentLi.querySelector( 'ul.start_divider.frm_sorting' ) || parentLi.querySelector( 'ul.frm_sorting' );
+		return (
+			parentLi.querySelector( 'ul.start_divider.frm_sorting' ) ||
+			parentLi.querySelector( 'ul.frm_sorting' ) ||
+			parentLi.querySelector( 'ul.sortable' )
+		);
 	}
 
 	function syncCanvasPage( pageNode, shouldCollapse ) {

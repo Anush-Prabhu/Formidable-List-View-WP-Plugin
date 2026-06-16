@@ -1,6 +1,11 @@
 # Changelog
 
-Current release: **v1.0.13**
+Current release: **v1.0.14**
+
+## v1.0.14
+
+- Fix drag-and-drop reorder in List View (canvas + list stay in sync until form Update)
+- Bulk delete on page and section rows (all nested fields)
 
 ## v1.0.13
 

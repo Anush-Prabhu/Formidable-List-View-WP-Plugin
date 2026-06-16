@@ -1,19 +1,15 @@
 ---
-description: Stable working release is v1.0.13
+description: Stable working release is v1.0.14
 alwaysApply: true
 ---
 
-# Stable version: v1.0.13
+# Stable version: v1.0.14
 
-**v1.0.13 is the active release.**
+**v1.0.14 is the active release.**
 
-- Keep `FLV_VERSION` at `1.0.13` in `formidable-list-view.php` unless the user explicitly asks to bump it.
+- Keep `FLV_VERSION` at `1.0.14` in `formidable-list-view.php` unless the user explicitly asks to bump it.
 
-## v1.0.13 changes
+## v1.0.14 changes
 
-- WordPress.org submission: readme.txt, GPLv2, `.wordpress-org` screenshots
-- See WORDPRESS_ORG.md for submit steps
-
-## v1.0.12 baseline
-
-- GitHub release, List View features, requires Formidable 6.31+
+- Fix List View drag reorder
+- Bulk delete for pages and sections (nested fields)

@@ -143,6 +143,8 @@ class FLV_Plugin {
 					'duplicateGroup'      => __( 'Duplicate Group', 'formidable-list-view' ),
 					'moreOptions'         => __( 'More options', 'formidable-list-view' ),
 					'confirmDelete'       => __( 'Are you sure you want to delete this field?', 'formidable-list-view' ),
+					'bulkDelete'          => __( 'Bulk delete', 'formidable-list-view' ),
+					'confirmBulkDelete'   => __( 'Delete all %d fields in this group (including nested fields)? This cannot be undone.', 'formidable-list-view' ),
 					'label'               => __( 'Label', 'formidable-list-view' ),
 					'collapseToPages'     => __( 'Collapse to pages', 'formidable-list-view' ),
 					'syncBuilderCollapse' => __( 'Sync collapse with builder', 'formidable-list-view' ),
