@@ -1,6 +1,11 @@
 # Changelog
 
-Current release: **v1.0.14**
+Current release: **v1.0.15**
+
+## v1.0.15
+
+- Drag reorder: sync with Formidable canvas via `moveFieldSettings` and global field order
+- Bulk delete: sequential async deletes (children before parents)
 
 ## v1.0.14
 

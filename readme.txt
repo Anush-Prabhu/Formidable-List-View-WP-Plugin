@@ -4,7 +4,7 @@ Tags: formidable, forms, form builder, list view, admin
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.14
+Stable tag: 1.0.15
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,10 @@ Page rows are for navigation. Reorder fields within each page or section; page b
 2. Collapse to pages — multi-page form overview
 
 == Changelog ==
+
+= 1.0.15 =
+* Fix drag reorder using Formidable field order sync (moveFieldSettings + frm_sync_after_drag_and_drop)
+* Improve bulk delete: sequential deletes with proper completion handling
 
 = 1.0.14 =
 * Fix List View drag reorder (canvas sync without list snapping back)

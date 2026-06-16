@@ -773,19 +773,106 @@
 		} ).always( scheduleRefresh );
 	}
 
+	function getCanvasFieldElement( fieldId ) {
+		const el = document.getElementById( 'frm_field_id_' + fieldId );
+		if ( ! el ) {
+			return null;
+		}
+
+		const gridRow = el.closest( 'ul.frm_grid_container' );
+		if ( gridRow ) {
+			const rowBox = el.closest( 'li.frm_field_box' );
+			if ( rowBox ) {
+				return rowBox;
+			}
+		}
+
+		return el;
+	}
+
+	function normalizeCanvasStructure() {
+		document.querySelectorAll( '.edit_field_type_end_divider' ).forEach( ( el ) => {
+			if ( el.parentNode ) {
+				el.parentNode.appendChild( el );
+			}
+		} );
+	}
+
+	function syncAllFieldOrders() {
+		const canvas = document.getElementById( 'frm-show-fields' );
+		if ( ! canvas ) {
+			return;
+		}
+
+		const fields = canvas.querySelectorAll( 'li.frm_field_box[data-fid]' );
+		fields.forEach( ( li, index ) => {
+			const fid = li.getAttribute( 'data-fid' );
+			if ( ! fid ) {
+				return;
+			}
+			const orderInput = document.querySelector(
+				'input[name="field_options[field_order_' + cssEscape( fid ) + ']"]'
+			);
+			if ( orderInput ) {
+				orderInput.value = String( index + 1 );
+			}
+		} );
+	}
+
+	function finalizeCanvasReorder() {
+		normalizeCanvasStructure();
+		syncAllFieldOrders();
+
+		if ( window.frmAdminBuild ) {
+			if ( typeof window.frmAdminBuild.moveFieldSettings === 'function' ) {
+				window.frmAdminBuild.moveFieldSettings();
+			}
+			if ( typeof window.frmAdminBuild.syncLayoutClasses === 'function' ) {
+				window.frmAdminBuild.syncLayoutClasses();
+			}
+		}
+
+		document.dispatchEvent( new Event( 'frm_sync_after_drag_and_drop', { bubbles: false } ) );
+	}
+
+	function deleteFieldAsync( fieldId ) {
+		return new Promise( ( resolve ) => {
+			let settled = false;
+			const hookId = 'formidable-list-view-delete-' + fieldId + '-' + Date.now();
+			const finish = () => {
+				if ( settled ) {
+					return;
+				}
+				settled = true;
+				if ( window.wp && window.wp.hooks ) {
+					window.wp.hooks.removeAction( 'frm_after_delete_field', hookId, finish );
+				}
+				resolve();
+			};
+
+			if ( window.wp && window.wp.hooks ) {
+				window.wp.hooks.addAction( 'frm_after_delete_field', hookId, finish );
+			}
+
+			if ( window.frmAdminBuild && typeof window.frmAdminBuild.deleteField === 'function' ) {
+				window.frmAdminBuild.deleteField( fieldId );
+			} else {
+				$.post( config.ajaxUrl, {
+					action: 'frm_delete_field',
+					field_id: fieldId,
+					nonce: typeof frmGlobal !== 'undefined' ? frmGlobal.nonce : config.nonce,
+				} ).always( finish );
+			}
+
+			setTimeout( finish, 2000 );
+		} );
+	}
+
 	function deleteField( fieldId, skipConfirm ) {
 		if ( ! skipConfirm && ! window.confirm( config.i18n.confirmDelete ) ) {
 			return;
 		}
-		if ( window.frmAdminBuild && typeof window.frmAdminBuild.deleteField === 'function' ) {
-			window.frmAdminBuild.deleteField( fieldId );
-			return;
-		}
-		$.post( config.ajaxUrl, {
-			action: 'frm_delete_field',
-			field_id: fieldId,
-			nonce: typeof frmGlobal !== 'undefined' ? frmGlobal.nonce : config.nonce,
-		} );
+		deleteFieldAsync( fieldId ).then( scheduleRefresh );
 	}
 
 	function collectNestedFieldIds( node ) {
@@ -823,33 +910,13 @@
 		}
 
 		selectedId = null;
-		let index = 0;
+		closeMenus();
 
-		function deleteNext() {
-			if ( index >= uniqueIds.length ) {
-				scheduleRefresh();
-				return;
-			}
-
-			const fieldId = uniqueIds[ index ];
-			index += 1;
-
-			if ( window.frmAdminBuild && typeof window.frmAdminBuild.deleteField === 'function' ) {
-				window.frmAdminBuild.deleteField( fieldId );
-				setTimeout( deleteNext, 100 );
-				return;
-			}
-
-			$.post( config.ajaxUrl, {
-				action: 'frm_delete_field',
-				field_id: fieldId,
-				nonce: typeof frmGlobal !== 'undefined' ? frmGlobal.nonce : config.nonce,
-			} ).always( () => {
-				setTimeout( deleteNext, 100 );
-			} );
-		}
-
-		deleteNext();
+		let chain = Promise.resolve();
+		uniqueIds.forEach( ( fieldId ) => {
+			chain = chain.then( () => deleteFieldAsync( fieldId ) );
+		} );
+		chain.then( scheduleRefresh );
 	}
 
 	function syncLabel( fieldId, value ) {
@@ -917,6 +984,10 @@
 	}
 
 	function initSortable( list ) {
+		if ( searchQuery ) {
+			return;
+		}
+
 		const $list = $( list );
 		if ( $list.hasClass( 'ui-sortable' ) ) {
 			$list.sortable( 'destroy' );
@@ -929,8 +1000,18 @@
 			tolerance: 'pointer',
 			placeholder: 'flv-sort-placeholder',
 			forcePlaceholderSize: true,
-			delay: 80,
-			distance: 5,
+			delay: 50,
+			distance: 3,
+			appendTo: document.body,
+			helper: function ( event, item ) {
+				const $helper = item.clone();
+				$helper.find( '.flv-inline-controls' ).remove();
+				$helper.width( item.width() );
+				return $helper;
+			},
+			start: function () {
+				closeMenus();
+			},
 			update: function () {
 				applyListOrderToCanvas( list );
 			},
@@ -941,16 +1022,6 @@
 		return Array.from( list.querySelectorAll( ':scope > .flv-node:not([data-field-type="break"])' ) )
 			.map( ( li ) => li.getAttribute( 'data-field-id' ) )
 			.filter( ( id ) => id && ! id.startsWith( 'page-' ) );
-	}
-
-	function refreshCanvasSortable( canvasList ) {
-		if ( ! canvasList ) {
-			return;
-		}
-		const $canvasList = $( canvasList );
-		if ( $canvasList.hasClass( 'ui-sortable' ) ) {
-			$canvasList.sortable( 'refresh' );
-		}
 	}
 
 	function reorderLocalTree( list, orderedIds ) {
@@ -1000,17 +1071,20 @@
 		}
 	}
 
-	function updateFieldOrderInputs( canvasList ) {
-		$( canvasList ).children( 'li' ).each( function ( index ) {
-			const fid = $( this ).data( 'fid' );
-			if ( ! fid ) {
-				return;
-			}
-			const orderInput = document.querySelector( 'input[name="field_options[field_order_' + cssEscape( String( fid ) ) + ']"]' );
-			if ( orderInput ) {
-				orderInput.value = index + 1;
-			}
-		} );
+	function getCanvasSortableList( parentId ) {
+		if ( ! parentId ) {
+			return document.getElementById( 'frm-show-fields' );
+		}
+		const parentLi = document.getElementById( 'frm_field_id_' + parentId );
+		if ( ! parentLi ) {
+			return null;
+		}
+		return (
+			parentLi.querySelector( 'ul.start_divider.frm_sorting' ) ||
+			parentLi.querySelector( 'ul.frm_sorting.start_divider' ) ||
+			parentLi.querySelector( 'ul.frm_grid_container.frm_sorting' ) ||
+			parentLi.querySelector( 'ul.frm_sorting' )
+		);
 	}
 
 	function getCanvasPageRange( pageNumber ) {
@@ -1045,7 +1119,7 @@
 
 		const insertBefore = range.breakLi;
 		orderedIds.forEach( ( fieldId ) => {
-			const el = document.getElementById( 'frm_field_id_' + fieldId );
+			const el = getCanvasFieldElement( fieldId );
 			if ( ! el ) {
 				return;
 			}
@@ -1056,8 +1130,7 @@
 			}
 		} );
 
-		updateFieldOrderInputs( range.canvasList );
-		refreshCanvasSortable( range.canvasList );
+		finalizeCanvasReorder();
 	}
 
 	function applyListOrderToCanvas( list ) {
@@ -1081,32 +1154,15 @@
 			return;
 		}
 
-		const $canvasList = $( canvasList );
 		orderedIds.forEach( ( fieldId ) => {
-			const $item = $( '#frm_field_id_' + fieldId );
-			if ( $item.length ) {
-				$canvasList.append( $item );
+			const el = getCanvasFieldElement( fieldId );
+			if ( el ) {
+				canvasList.appendChild( el );
 			}
 		} );
 
-		updateFieldOrderInputs( canvasList );
-		refreshCanvasSortable( canvasList );
+		finalizeCanvasReorder();
 		reorderLocalTree( list, orderedIds );
-	}
-
-	function getCanvasSortableList( parentId ) {
-		if ( ! parentId ) {
-			return document.getElementById( 'frm-show-fields' );
-		}
-		const parentLi = document.getElementById( 'frm_field_id_' + parentId );
-		if ( ! parentLi ) {
-			return null;
-		}
-		return (
-			parentLi.querySelector( 'ul.start_divider.frm_sorting' ) ||
-			parentLi.querySelector( 'ul.frm_sorting' ) ||
-			parentLi.querySelector( 'ul.sortable' )
-		);
 	}
 
 	function syncCanvasPage( pageNode, shouldCollapse ) {

@@ -1,15 +1,15 @@
 ---
-description: Stable working release is v1.0.14
+description: Stable working release is v1.0.15
 alwaysApply: true
 ---
 
-# Stable version: v1.0.14
+# Stable version: v1.0.15
 
-**v1.0.14 is the active release.**
+**v1.0.15 is the active release.**
 
-- Keep `FLV_VERSION` at `1.0.14` in `formidable-list-view.php` unless the user explicitly asks to bump it.
+- Keep `FLV_VERSION` at `1.0.15` in `formidable-list-view.php` unless the user explicitly asks to bump it.
 
-## v1.0.14 changes
+## v1.0.15 changes
 
-- Fix List View drag reorder
-- Bulk delete for pages and sections (nested fields)
+- Drag reorder uses Formidable `moveFieldSettings` + global field order sync
+- Bulk delete runs sequential async deletes (nested fields, children first)
