@@ -1,0 +1,20 @@
+---
+description: Stable working release is v1.0.12
+alwaysApply: true
+---
+
+# Stable version: v1.0.12
+
+**v1.0.12 is the active release.**
+
+- Keep `FLV_VERSION` at `1.0.12` in `formidable-list-view.php` unless the user explicitly asks to bump it.
+
+## v1.0.12 changes
+
+- MIT License (open use, modify, distribute)
+- GitHub documentation: screenshots, README, CHANGELOG, release zip
+
+## v1.0.11 baseline
+
+- Security hardening: Formidable permission checks, JSON encoding, icon class allowlist
+- Code cleanup and index.php stubs

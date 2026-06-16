@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Formidable Forms support
+    url: https://formidableforms.com/
+    about: Official Formidable product support (not this plugin)
+  - name: GitHub Discussions
+    url: https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin/discussions
+    about: Questions, feedback, and showcase posts

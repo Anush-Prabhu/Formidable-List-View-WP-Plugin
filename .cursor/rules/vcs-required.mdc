@@ -1,0 +1,35 @@
+---
+description: Every plugin change must be committed and pushed to git
+globs: wp-content/plugins/formidable-list-view/**
+alwaysApply: false
+---
+
+# Version control required
+
+This plugin is tracked at `https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin.git`.
+
+## After every code change
+
+1. Work only inside `wp-content/plugins/formidable-list-view/`.
+2. When a task is complete, **commit** all related changes (do not leave work uncommitted).
+3. **Push** to `origin/master` unless the user asks not to push.
+
+## Commit workflow
+
+- Run `git status`, `git diff`, and `git log -1` before committing.
+- Write a concise message focused on **why** (Conventional Commits style when it fits).
+- Bump `FLV_VERSION` in `formidable-list-view.php` when user-facing behavior or assets change.
+- Never commit secrets (`.env`, credentials, `wp-config.php`).
+
+## Do not
+
+- Finish a task with uncommitted plugin changes.
+- Skip git because the change is "small".
+- Force-push to `master` unless explicitly requested.
+
+## Remote
+
+```text
+origin → https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin.git
+branch → master
+```
