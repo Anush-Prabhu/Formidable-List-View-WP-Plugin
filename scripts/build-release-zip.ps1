@@ -8,7 +8,7 @@ $zip = Join-Path $root "formidable-list-view-$version.zip"
 if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
 if (Test-Path $zip) { Remove-Item $zip -Force }
 New-Item -ItemType Directory -Path $staging | Out-Null
-$exclude = @('.git', '.cursor', '.github', 'scripts')
+$exclude = @('.git', '.cursor', '.github', 'scripts', '.wordpress-org', 'docs', 'README.md', 'CHANGELOG.md', 'WORDPRESS_ORG.md', '.distignore')
 Get-ChildItem $root -Force | Where-Object { $exclude -notcontains $_.Name -and $_.Name -notlike 'formidable-list-view-*.zip' } | ForEach-Object {
     Copy-Item $_.FullName -Destination $staging -Recurse -Force
 }

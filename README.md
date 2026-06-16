@@ -5,7 +5,7 @@
 **Requires Formidable Forms 6.31+** · WordPress 6.0+ · PHP 7.4+
 
 [![Release](https://img.shields.io/github/v/release/Anush-Prabhu/Formidable-List-View-WP-Plugin?label=release)](https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: GPL v2](https://img.shields.io/badge/License-GPLv2-blue.svg)](LICENSE)
 [![Formidable Forms](https://img.shields.io/badge/Formidable%20Forms-6.31%2B-blue)](https://formidableforms.com/)
 
 > **Not affiliated with Strategy11 or Formidable Forms.** Community plugin using official Formidable builder hooks.
@@ -50,7 +50,7 @@ List View adds a **builder sidebar tab** that mirrors your form hierarchy. It us
 
 ### Option A — Download zip (recommended)
 
-1. Open **[Releases](https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin/releases/latest)** and download `formidable-list-view-1.0.12.zip` (or the latest zip on that page).
+1. Open **[Releases](https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin/releases/latest)** and download the latest zip, or install from [WordPress.org](https://wordpress.org/plugins/formidable-list-view/) once approved.
 2. In WordPress: **Plugins → Add New → Upload Plugin** → choose the zip → **Install Now** → **Activate**.
 
 ### Option B — Git clone
@@ -173,4 +173,4 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-Released under the [MIT License](LICENSE). You are free to use, copy, modify, merge, publish, distribute, sublicense, and sell copies of this software.
+Released under the [GNU General Public License v2 or later](LICENSE). You are free to use, modify, and distribute this plugin under the GPL terms.

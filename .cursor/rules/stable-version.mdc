@@ -1,20 +1,19 @@
 ---
-description: Stable working release is v1.0.12
+description: Stable working release is v1.0.13
 alwaysApply: true
 ---
 
-# Stable version: v1.0.12
+# Stable version: v1.0.13
 
-**v1.0.12 is the active release.**
+**v1.0.13 is the active release.**
 
-- Keep `FLV_VERSION` at `1.0.12` in `formidable-list-view.php` unless the user explicitly asks to bump it.
+- Keep `FLV_VERSION` at `1.0.13` in `formidable-list-view.php` unless the user explicitly asks to bump it.
 
-## v1.0.12 changes
+## v1.0.13 changes
 
-- MIT License (open use, modify, distribute)
-- GitHub documentation: screenshots, README, CHANGELOG, release zip
+- WordPress.org submission: readme.txt, GPLv2, `.wordpress-org` screenshots
+- See WORDPRESS_ORG.md for submit steps
 
-## v1.0.11 baseline
+## v1.0.12 baseline
 
-- Security hardening: Formidable permission checks, JSON encoding, icon class allowlist
-- Code cleanup and index.php stubs
+- GitHub release, List View features, requires Formidable 6.31+

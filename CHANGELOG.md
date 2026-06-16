@@ -1,21 +1,19 @@
 # Changelog
 
-Current public release: **[v1.0.12](https://github.com/Anush-Prabhu/Formidable-List-View-WP-Plugin/releases/latest)**
+Current release: **v1.0.13**
+
+## v1.0.13
+
+- WordPress.org package: `readme.txt`, GPLv2 license
+- WordPress.org assets (screenshots) in `.wordpress-org/`
+- Submission guide: [WORDPRESS_ORG.md](WORDPRESS_ORG.md)
 
 ## v1.0.12
 
-Hierarchical **List View** tab for the Formidable Forms builder (requires Formidable 6.31+).
+- Initial public release on GitHub
+- List View tab, search, collapse to pages, drag reorder, row menus
+- Requires Formidable Forms 6.31+
 
-### Features
+## License
 
-- List View tab with page → section → field tree
-- Search by label, field key, or ID
-- Collapse to pages (★ Page 1, Page 2, …) and sync with builder canvas
-- Drag reorder synced to canvas
-- Row menu: Delete, Duplicate, Field Settings
-- Inline label and visibility editing
-- REST endpoint: `GET /wp-json/frm-list-view/v1/form/{id}/tree`
-
-### License
-
-[MIT](LICENSE) — free to use, modify, and distribute.
+[GPLv2 or later](LICENSE)

@@ -1,0 +1,10 @@
+.git
+.github
+.cursor
+scripts
+.wordpress-org
+*.zip
+.DS_Store
+Thumbs.db
+*.md
+!readme.txt

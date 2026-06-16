@@ -22,7 +22,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Publishing v$version to $repo ..."
 
 gh repo edit $repo `
-    --description 'Hierarchical List View tab for the Formidable Forms builder — search, collapse pages, drag reorder, inline edit. MIT License. Requires Formidable 6.31+.' `
+    --description 'Hierarchical List View tab for the Formidable Forms builder — search, collapse pages, drag reorder, inline edit. GPLv2+. Requires Formidable 6.31+.' `
     --add-topic formidable-forms `
     --add-topic wordpress-plugin `
     --add-topic form-builder `
@@ -44,7 +44,7 @@ $notes = @"
 Hierarchical **List View** tab for the [Formidable Forms](https://formidableforms.com/) builder.
 
 **Requires:** Formidable Forms 6.31+, WordPress 6.0+, PHP 7.4+  
-**License:** [MIT](https://github.com/$repo/blob/master/LICENSE) — free to use, modify, and distribute.
+**License:** [GPLv2+](https://github.com/$repo/blob/master/LICENSE) — free to use, modify, and distribute under the GPL.
 
 ### Features
 - Hierarchical tree: pages, sections, fields
